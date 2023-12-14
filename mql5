@@ -1,0 +1,73 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                     Oscillator Predictor MT5 |
+//|                                                Copyright 2022, Forex Robot Easy Team, forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//|                                                      Global Variables |
+//+------------------------------------------------------------------+
+double overboughtLevel;
+double oversoldLevel;
+double predictionPeriod;
+
+//+------------------------------------------------------------------+
+//|                                                      OnInit function |
+//+------------------------------------------------------------------+
+void OnInit()
+{
+   overboughtLevel = 80.0;
+   oversoldLevel = 20.0;
+   predictionPeriod = 1;
+}
+
+//+------------------------------------------------------------------+
+//|                                                      OnCalculate function |
+//+------------------------------------------------------------------+
+void OnCalculate(const int rates_total,
+                 const int prev_calculated,
+                 const datetime &time[],
+                 const double &open[],
+                 const double &high[],
+                 const double &low[],
+                 const double &close[],
+                 const long &tick_volume[],
+                 const long &volume[],
+                 const int &spread[])
+{
+   ArrayResize(prediction_bands, rates_total);
+
+   for (int i = prev_calculated; i < rates_total; i++)
+   {
+      double currentClose = close[i];
+      double prevClose = close[i - 1];
+      double oscillator = currentClose - prevClose;
+      
+      if (oscillator > overboughtLevel)
+      {
+         prediction_bands[i] = currentClose + (currentClose - prevClose) * predictionPeriod;
+      }
+      else if (oscillator < oversoldLevel)
+      {
+         prediction_bands[i] = currentClose - (prevClose - currentClose) * predictionPeriod;
+      }
+      else
+      {
+         prediction_bands[i] = EMPTY_VALUE;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//|                                                      OnDeinit function |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Clean up any resources here
+}
+
+//+------------------------------------------------------------------+
+//|                                                      Other necessary functions |
+//+------------------------------------------------------------------+
+// Implement other necessary functions for entering and exiting trades
+
